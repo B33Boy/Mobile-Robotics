@@ -27,7 +27,7 @@ def listener():
 		goal = PoseStamped()
 		goal.header.stamp=rospy.get_rostime()
 		goal.header.frame_id='map'
-		goal.pose.position.x=0.5
+		goal.pose.position.x=0
 		goal.pose.position.y=0
 		goal.pose.position.z=0
 		goal.pose.orientation.w=1.0
