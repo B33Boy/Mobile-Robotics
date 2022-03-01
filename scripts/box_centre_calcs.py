@@ -1,51 +1,60 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import String, Int32
-from geometry_msgs.msg import PoseStamped
-from actionlib_msgs.msg import GoalID
-from move_base_msgs.msg import MoveBaseActionGoal
+from ar_track_alvar_msgs.msg import AlvarMarker
+from visualization_msgs.msg import Marker
 from multiprocessing import Process, Pipe
 import thread, time
 
 #flag used to ensure home goal is only sent once
-flag = False
+packageOneFlag = False
+packageTwoFlag = False
+boxReference = {'ids': 0,1,2,3, 'width': 10,5,10,5, 'height': 5,5,5,5, 'depth': 5,10,5,10}
 
 #ros return_home subscriber callback function
 #Checks if data has been published to move_base/cancel topic and changes flag
 def callback(data):
-        if (data.id==''):
+        if (data.id!=''):
+		boxInfo[0] = data.id
+		boxInfo[1] = data.pose.position.x
+		boxInfo[2] = data.pose.position.y
+		boxInfo[3] = data.pose.position.z
+		boxInfo[4] = data.pose.orientation.x
+		boxInfo[4] = data.pose.orientation.y
+		boxInfo[4] = data.pose.orientation.z
+		boxInfo[4] = data.pose.orientation.w
 		global flag
 		flag = True	
 
 #function to send the robot the origin as a goal when exploration is complete
-def return_home():
+def box_locator():
     #initialize ros subscriber to move_base/cancel
-    rospy.init_node('return_home', anonymous=True)
-    rospy.Subscriber('move_base/cancel', GoalID, callback)
+    rospy.init_node('box_locator', anonymous=True)
+    rospy.Subscriber('ar_pose_marker', AlvarMarker, callback)
     #initialize ros publisher to move_base_simple/goal
-    pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
+    pub = rospy.Publisher('visualization_marker', Marker, queue_size=100)
     rate = rospy.Rate(20)
     #loop to keep the nodes going
     while not rospy.is_shutdown():
     #check is mapping is complete (flag)
-	if (flag==True):
-		#if mapping is complete, let user know and then return to home
-		print("EXPLORATION STOPPED")
-		goal = PoseStamped()
-		goal.header.stamp=rospy.get_rostime()
-		goal.header.frame_id='map'
-		goal.pose.position.x=0
-		goal.pose.position.y=0
-		goal.pose.position.z=0
-		goal.pose.orientation.w=1.0
-		rospy.loginfo(goal)
-		pub.publish(goal)
-		global flag
-		flag = False   	
+	if (boxInfo[0]==0 or boxInfo[0]==1)
+		if (packageOneFlag==False)
+			global packageOneFlag
+			packageOneFlag = True
+			newMarker = marker
+			marker.header.stamp=rospy.get_rostime()
+			marker.header.frame_id='map'
+			
+			
+	if (boxInfo[0]==2 or boxInfo[0]==3)
+		if (packageTwoFlag==False)
+			global packageOneFlag
+			packageTwoFlag = True
 	rate.sleep()
+
 
 if __name__ == '__main__':
     try:
-        return_home()
+        box_locator()
     except rospy.ROSInterruptException:
         pass
