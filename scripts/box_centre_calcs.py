@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import rospy
+import numpy as np
 from std_msgs.msg import String, Int32
 from ar_track_alvar_msgs.msg import AlvarMarker
 from visualization_msgs.msg import Marker
 from multiprocessing import Process, Pipe
+from scipy.spatial.transform import Rotation as R
 import thread, time
 
 #flag used to ensure home goal is only sent once
@@ -20,11 +22,9 @@ def callback(data):
 		boxInfo[2] = data.pose.position.y
 		boxInfo[3] = data.pose.position.z
 		boxInfo[4] = data.pose.orientation.x
-		boxInfo[4] = data.pose.orientation.y
-		boxInfo[4] = data.pose.orientation.z
-		boxInfo[4] = data.pose.orientation.w
-		global flag
-		flag = True	
+		boxInfo[5] = data.pose.orientation.y
+		boxInfo[6] = data.pose.orientation.z
+		boxInfo[7] = data.pose.orientation.w	
 
 #function to send the robot the origin as a goal when exploration is complete
 def box_locator():
@@ -41,9 +41,13 @@ def box_locator():
 		if (packageOneFlag==False)
 			global packageOneFlag
 			packageOneFlag = True
+			rotM = R.from_quat([boxInfo[4], boxInfo[5], boxInfo[6], boxInfo[7])
+			boxPose = np.array([[boxInfo(1)], [boxInfo(2)], [boxInfo(3)]])
 			newMarker = marker
 			marker.header.stamp=rospy.get_rostime()
 			marker.header.frame_id='map'
+			if (boxInfo[0]==0)
+				marker.pose.point.x = 0.22+np.dot(rotM[1,:]*boxPose)
 			
 			
 	if (boxInfo[0]==2 or boxInfo[0]==3)
