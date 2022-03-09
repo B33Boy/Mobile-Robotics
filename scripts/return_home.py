@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import String, Int32
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
-from move_base_msgs.msg import MoveBaseActionGoal
-from multiprocessing import Process, Pipe
-import thread, time
 
 #flag used to ensure home goal is only sent once
 flag = False
