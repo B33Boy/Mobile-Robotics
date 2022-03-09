@@ -49,39 +49,45 @@ This is the repository for the course  METE 4300U - Introduction to Mobile Robot
 <!-- GETTING STARTED -->
 ## Getting Started
 
-
 ### Prerequisites
 
 - ROS KINETIC (Ubuntu 16.04)
 
 ### Installation
 
-1. Clone the repo in catkin_ws/src
 
+1. Set up remote pc and Raspberry Pi by following: https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#pc-setup 
+2. Clone the repo in catkin_ws/src
+  
    ```sh
    git clone https://github.com/B33Boy/mr.git
    ```
 
-2. Run catkin_make
+3. Run catkin_make
 
    ```sh
    cd ~/catkin_ws/
    catkin_make
    ```
- 
+
 ## Usage
 
 To run phase 1:
 
+  On the Raspberry Pi:
+
+
+  On the remote desktop:
    ```sh
    roslaunch mr mr_phase1.launch 
    ```
 
+To run phase 2:
 
+   ```sh
+   roslaunch mr mr_phase2.launch 
+   ```
 
-### Generating requirements.txt 
-
-run the command `./gen_pipreq.sh` from the root of the project to update the requirements.txt
 
 <!-- LICENSE -->
 ## License
@@ -93,10 +99,13 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Abhi Patel - abhi.patel@ontariotechu.net
-Hunter Peeters - hunter.peeters@ontariotechu.net
-Matthew Bugeys - matthew.bugeya@ontariotechu.net
-Pujan Parikh - pujan.parikh@ontariotechu.net
+- Abhi Patel - abhi.patel@ontariotechu.net
+
+- Hunter Peeters - hunter.peeters@ontariotechu.net
+
+- Matthew Bugeys - matthew.bugeya@ontariotechu.net
+
+- Pujan Parikh - pujan.parikh@ontariotechu.net
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
