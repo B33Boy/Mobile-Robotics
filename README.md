@@ -76,8 +76,19 @@ To run phase 1:
 
   On the Raspberry Pi:
 
+  ```sh
+  roslaunch turtlebot3_bringup turtlebot3_robot.launch
+
+  ```
+
+  **OR** alternatively if you would like to use the simulator:
+  
+  ```sh
+  roslaunch turtlebot3_gazebo turtlebot3_world.launch
+  ```
 
   On the remote desktop:
+  
    ```sh
    roslaunch mr mr_phase1.launch 
    ```
