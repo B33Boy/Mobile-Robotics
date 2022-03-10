@@ -8,8 +8,8 @@ import thread, time
 #flag used to ensure home goal is only sent once
 flag1 = False
 flag2 = False
-box1=[]
-box2=[]
+box1=[0,0]
+box2=[0,0]
 #ros return_home subscriber callback function
 #Checks if data has been published to move_base/cancel topic and changes flag
 def callback1(data):
@@ -34,7 +34,7 @@ def costmap_updater():
 	rospy.Subscriber('visualization_marker_2', Marker, callback2)
     #initialize ros publisher to move_base_simple/goal
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=100)
-	pub1 = rospy.Publisher('scan_2', LaserScan, queue_size=100)
+	pub2 = rospy.Publisher('scan_2', LaserScan, queue_size=100)
 	rate = rospy.Rate(10)
     #loop to keep the nodes going
 	while not rospy.is_shutdown():
@@ -50,6 +50,7 @@ def costmap_updater():
 			box1_scan.range_max=20
 			box1_scan.ranges=[box1[1]]
 			pub1.publish(box1_scan)
+			print("PUBLISHED")
 			
 		if (flag2==True):
 			box2_scan=LaserScan()
@@ -61,6 +62,7 @@ def costmap_updater():
 			box2_scan.range_max=20
 			box2_scan.ranges=[box2[1]]
 			pub2.publish(box2_scan)
+			print("PUBLISHED")
 			
 	rate.sleep()
 

@@ -9,8 +9,8 @@
 
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
     </node>
-    #<node pkg="mr" type="costmap_updater.py" name="costmap_updater" output="screen">
-    </node>
+
+
 
 
     #<node pkg="image_transport" type="republish" name="image_republisher"
