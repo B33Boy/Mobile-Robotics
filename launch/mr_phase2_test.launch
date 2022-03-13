@@ -7,8 +7,6 @@
     #<node pkg="mr" type="costmap_updater.py" name="costmap_updater" output="screen">
     </node>
 
-    #<node pkg="image_transport" type="republish" name="image_republisher"
-    args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
 
     <group ns="raspicam_node">
     	#<node pkg="image_proc" type="image_proc" name="image_proc">
@@ -17,17 +15,36 @@
     		<param name="queue_size"		type="int"		value="20"/>
      	</node>
     </group>
+
+
+    #<node pkg="image_transport" type="republish" name="image_republisher"
+    args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
+
     
 	<node pkg="tf" type="static_transform_publisher" name="camera_rgb_optical_frame_to_cam" 
     args="0 0 0 0 0 0 camera_rgb_optical_frame camera 10" />
 
 	<node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar" respawn="false" output="screen">
-		<param name="marker_size"           type="double" value="8.0" />
+		<param name="marker_size"           type="double" value="4.5" />
 		<param name="max_new_marker_error"  type="double" value="0.08" />
 		<param name="max_track_error"       type="double" value="0.2" />
 		<param name="output_frame"          type="string" value="map" />
 		<remap from="camera_image"  to="/raspicam_node/image" />
 		<remap from="camera_info"   to="/raspicam_node/camera_info" />
 	</node>
+
+	<node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar_costmap" respawn="false" output="screen">
+		<param name="marker_size"           type="double" value="4.5" />
+		<param name="max_new_marker_error"  type="double" value="0.08" />
+		<param name="max_track_error"       type="double" value="0.2" />
+		<param name="output_frame"          type="string" value="base_scan" />
+		<remap from="camera_image"  to="/raspicam_node/image" />
+		<remap from="camera_info"   to="/raspicam_node/camera_info" />
+		<remap from="ar_pose_marker" to="box_local_marker"/>
+	</node>
+
+	<include file="$(find ira_laser_tools)/launch/laserscan_multi_merger.launch"/>
+
+
     
 </launch>

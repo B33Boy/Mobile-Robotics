@@ -28,7 +28,7 @@
     args="0 0 0 0 0 0 camera_rgb_optical_frame camera 10" />
 
 	<node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar" respawn="false" output="screen">
-		<param name="marker_size"           type="double" value="5.0" />
+		<param name="marker_size"           type="double" value="4.5" />
 		<param name="max_new_marker_error"  type="double" value="0.08" />
 		<param name="max_track_error"       type="double" value="0.2" />
 		<param name="output_frame"          type="string" value="map" />
