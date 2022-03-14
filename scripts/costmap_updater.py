@@ -27,7 +27,7 @@ def costmap_updater():
 	rospy.Subscriber('box_local_marker', AlvarMarkers, callback1)
     #initialize ros publisher to move_base_simple/goal
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=100)
-	rate = rospy.Rate(0.001)
+	rate = rospy.Rate(100)
     #loop to keep the nodes going
 	while not rospy.is_shutdown():
     #check is mapping is complete (flag)

@@ -59,17 +59,18 @@ def quaternion_rotation_matrix(Q):
 
 
 def callback(data):
-        if (data.markers[0].id!=''):
-		global boxInfo
-		boxInfo[0] = data.markers[0].id
-		boxInfo[1] = data.markers[0].pose.pose.position.x
-		boxInfo[2] = data.markers[0].pose.pose.position.y
-		boxInfo[3] = data.markers[0].pose.pose.position.z
-		global Q
-		Q[0] = data.markers[0].pose.pose.orientation.x
-		Q[1] = data.markers[0].pose.pose.orientation.y
-		Q[2] = data.markers[0].pose.pose.orientation.z
-		Q[3] = data.markers[0].pose.pose.orientation.w	
+	global boxInfo
+	boxInfo[0] = data.markers[0].id
+	boxInfo[1] = data.markers[0].pose.pose.position.x
+	boxInfo[2] = data.markers[0].pose.pose.position.y
+	boxInfo[3] = data.markers[0].pose.pose.position.z
+	global Q
+	Q[0] = data.markers[0].pose.pose.orientation.x
+	Q[1] = data.markers[0].pose.pose.orientation.y
+	Q[2] = data.markers[0].pose.pose.orientation.z
+	Q[3] = data.markers[0].pose.pose.orientation.w
+	global flag
+	flag=true	
 
 #function to send the robot the origin as a goal when exploration is complete
 def box_locator():
@@ -84,68 +85,70 @@ def box_locator():
     while not rospy.is_shutdown():
     #check is mapping is complete (flag)
 	global boxInfo
-	if (boxInfo[0]==0 or boxInfo[0]==1):
-		global packageOneFlag
-		if (packageOneFlag==False):
-			packageOneFlag = True
-			rotM = quaternion_rotation_matrix(Q)
-			boxGeo0 = np.array([[0.022], [0], [-0.05]])
-			boxGeo1 = np.array([[0],[0],[-0.1]])
-			marker1=Marker()
-			marker1.header.stamp=rospy.get_rostime()
-			marker1.header.frame_id='map'
-			if (boxInfo[0]==0):
-				marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo0)
-				marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo0)
-				marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo0)
-			if (boxInfo[0]==1):
-				marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo1)
-				marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo1)
-				marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo1)
-			marker1.pose.orientation.x=Q[0]
-			marker1.pose.orientation.y=Q[1]
-			marker1.pose.orientation.z=Q[2]
-			marker1.pose.orientation.w=Q[3]
-			marker1.color.g=0
-			marker1.color.r=0
-			marker1.color.b=255
-			marker1.color.a=1
-			marker1.scale.x=0.05
-			marker1.scale.y=0.05
-			marker1.scale.z=0.05
-			pub1.publish(marker1)
+	global flag
+	if (flag==true):
+		if (boxInfo[0]==0 or boxInfo[0]==1):
+			global packageOneFlag
+			if (packageOneFlag==False):
+				packageOneFlag = True
+				rotM = quaternion_rotation_matrix(Q)
+				boxGeo0 = np.array([[0.022], [0], [-0.05]])
+				boxGeo1 = np.array([[0],[0],[-0.1]])
+				marker1=Marker()
+				marker1.header.stamp=rospy.get_rostime()
+				marker1.header.frame_id='map'
+				if (boxInfo[0]==0):
+					marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo0)
+					marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo0)
+					marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo0)
+				if (boxInfo[0]==1):
+					marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo1)
+					marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo1)
+					marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo1)
+				marker1.pose.orientation.x=Q[0]
+				marker1.pose.orientation.y=Q[1]
+				marker1.pose.orientation.z=Q[2]
+				marker1.pose.orientation.w=Q[3]
+				marker1.color.g=0
+				marker1.color.r=0
+				marker1.color.b=255
+				marker1.color.a=1
+				marker1.scale.x=0.05
+				marker1.scale.y=0.05
+				marker1.scale.z=0.05
+				pub1.publish(marker1)
 			
 			
-	elif (boxInfo[0]==2 or boxInfo[0]==3):
-		global packageTwoFlag
-		if (packageTwoFlag==False):
-			packageTwoFlag = True
-			rotM = quaternion_rotation_matrix(Q)
-			boxGeo2 = np.array([[0.022], [0], [-0.05]])
-			boxGeo3 = np.array([[0],[0],[-0.1]])
-			marker2=Marker()
-			marker2.header.stamp=rospy.get_rostime()
-			marker2.header.frame_id='map'
-			if (boxInfo[0]==2):
-				marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo2)
-				marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo2)
-				marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo2)
-			if (boxInfo[0]==3):
-				marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo3)
-				marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo3)
-				marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo3)
-			marker2.pose.orientation.x=Q[0]
-			marker2.pose.orientation.y=Q[1]
-			marker2.pose.orientation.z=Q[2]
-			marker2.pose.orientation.w=Q[3]
-			marker2.color.g=0
-			marker2.color.r=255
-			marker2.color.b=0
-			marker2.color.a=1
-			marker2.scale.x=0.05
-			marker2.scale.y=0.05
-			marker2.scale.z=0.05
-			pub2.publish(marker2)
+		elif (boxInfo[0]==2 or boxInfo[0]==3):
+			if (packageTwoFlag==False):
+				packageTwoFlag = True
+				rotM = quaternion_rotation_matrix(Q)
+				boxGeo2 = np.array([[0.022], [0], [-0.05]])
+				boxGeo3 = np.array([[0],[0],[-0.1]])
+				marker2=Marker()
+				marker2.header.stamp=rospy.get_rostime()
+				marker2.header.frame_id='map'
+				if (boxInfo[0]==2):
+					marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo2)
+					marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo2)
+					marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo2)
+				if (boxInfo[0]==3):
+					marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo3)
+					marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo3)
+					marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo3)
+				marker2.pose.orientation.x=Q[0]
+				marker2.pose.orientation.y=Q[1]
+				marker2.pose.orientation.z=Q[2]
+				marker2.pose.orientation.w=Q[3]
+				marker2.color.g=0
+				marker2.color.r=255
+				marker2.color.b=0
+				marker2.color.a=1
+				marker2.scale.x=0.05
+				marker2.scale.y=0.05
+				marker2.scale.z=0.05
+				pub2.publish(marker2)
+		flag=false
 	rate.sleep()
 
 
