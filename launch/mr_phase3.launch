@@ -10,6 +10,10 @@
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
     </node>
 
+    #<node pkg="mr" type="costmap_updater.py" name="costmap_updater" output="screen">
+    </node>
+
+
     #<node pkg="image_transport" type="republish" name="image_republisher"
     args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
 
@@ -32,5 +36,17 @@
 		<remap from="camera_image"  to="/raspicam_node/image" />
 		<remap from="camera_info"   to="/raspicam_node/camera_info" />
 	</node>
+
+	<node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar_costmap" respawn="false" output="screen">
+		<param name="marker_size"           type="double" value="4.5" />
+		<param name="max_new_marker_error"  type="double" value="0.08" />
+		<param name="max_track_error"       type="double" value="0.2" />
+		<param name="output_frame"          type="string" value="map" />
+		<remap from="camera_image"  to="/raspicam_node/image" />
+		<remap from="camera_info"   to="/raspicam_node/camera_info" />
+		<remap from="ar_pose_marker" to="box_local_marker"/>
+	</node>
+
+	<include file="$(find ira_laser_tools)/launch/laserscan_multi_merger.launch"/>
     
 </launch>

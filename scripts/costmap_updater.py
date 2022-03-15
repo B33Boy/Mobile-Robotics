@@ -27,7 +27,7 @@ def costmap_updater():
 	rospy.Subscriber('box_local_marker', AlvarMarkers, callback1)
     #initialize ros publisher to move_base_simple/goal
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=100)
-	rate = rospy.Rate(100)
+	rate = rospy.Rate(3)
     #loop to keep the nodes going
 	while not rospy.is_shutdown():
     #check is mapping is complete (flag)
@@ -36,14 +36,14 @@ def costmap_updater():
 		box1_scan=LaserScan()
 		box1_scan.header.stamp.secs=time[0]
 		box1_scan.header.stamp.nsecs=time[1]
-		box1_scan.header.frame_id='base_scan'
+		box1_scan.header.frame_id='map'
 		box1_scan.angle_min=box[0]
-		box1_scan.angle_max=box[0]
+		box1_scan.angle_max=box[0]+0.0001
 		box1_scan.range_min=0
 		box1_scan.range_max=20
-		box1_scan.angle_increment=0
-		box1_scan.time_increment
-		box1_scan.ranges=[box[1]]
+		box1_scan.angle_increment=0.0001
+		box1_scan.time_increment=0.0001
+		box1_scan.ranges=[box[1],box[1]]
 		pub1.publish(box1_scan)
 			
 	rate.sleep()
