@@ -114,7 +114,7 @@ def box_locator():
 			counter = 2
 		pub_counter.publish(counter)
 
-	rate.sleep()
+		rate.sleep()
 
 
 if __name__ == '__main__':

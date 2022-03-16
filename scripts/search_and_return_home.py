@@ -5,6 +5,7 @@ from actionlib_msgs.msg import GoalID
 from sensor_msgs.msg import LaserScan # LaserScan type message is defined in sensor_msgs
 from geometry_msgs.msg import Twist #
 from std_msgs.msg import Int32
+import time
 
 #flag used to ensure home goal is only sent once
 flag = False
@@ -19,10 +20,11 @@ def callback_returnHome(data):
 		flag = True
 
 def callback_roomba(msg):
-	global move
-	thr1 = 0.4 # Laser scan range threshold
-	thr2 = 0.4
-	if msg.ranges[0]>thr1 and msg.ranges[15]>thr2 and msg.ranges[345]>thr2: # Checks if there are obstacles in front and
+	global move, angle
+	thr1 = 0.5 # Laser scan range threshold
+	thr2 = 0.6
+	thr_ovr = 0.001
+	if ((msg.ranges[0]>thr1 or msg.ranges[0]<thr_ovr) and (msg.ranges[16]>thr2 or msg.ranges[16]<thr_ovr) and (msg.ranges[345]>thr2 or msg.ranges[345]<thr_ovr)): # Checks if there are obstacles in front and
                                                                          # 15 degrees left and right (Try changing the
 									 # the angle values as well as the thresholds)
 		move.linear.x = 0.15 # go forward (linear velocity)
@@ -30,7 +32,7 @@ def callback_roomba(msg):
 	else:
 		move.linear.x = 0.0 # stop
 		move.angular.z = 0.5 # rotate counter-clockwise
-		if msg.ranges[0]>thr1 and msg.ranges[15]>thr2 and msg.ranges[345]>thr2:
+		if (msg.ranges[0]>thr1 and msg.ranges[16]>thr2 and msg.ranges[345]>thr2):
 			move.linear.x = 0.15
 			move.angular.z = 0.0
 
@@ -49,7 +51,7 @@ def return_home():
 	sub = rospy.Subscriber("/scan", LaserScan, callback_roomba)  # Subscriber object which will listen "LaserScan" type messages
 	sub_counter = rospy.Subscriber("/box_counter", Int32, callback_counter)
 
-	rate = rospy.Rate(0.1)
+	rate = rospy.Rate(50)
     #loop to keep the nodes going
 	while not rospy.is_shutdown():
     #check is mapping is complete (flag)
@@ -68,7 +70,7 @@ def return_home():
 			rospy.loginfo(goal)
 			pub.publish(goal)
 			flag = False   	
-	rate.sleep()
+		rate.sleep()
 
 if __name__ == '__main__':
     try:
