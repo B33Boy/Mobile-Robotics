@@ -38,6 +38,7 @@ def box_locator():
     #initialize ros publisher to move_base_simple/goal
     pub1 = rospy.Publisher('visualization_marker_1', Marker, queue_size=100)
     pub2 = rospy.Publisher('visualization_marker_2', Marker, queue_size=100)
+	pub_counter = rospy.Publisher('box_counter', Int32, queue_size=10)
     rate = rospy.Rate(30)
     #loop to keep the nodes going
     while not rospy.is_shutdown():
@@ -103,6 +104,15 @@ def box_locator():
 			marker2.color.b=0
 			marker2.color.a=1
 			pub2.publish(marker2)
+	
+	if (packageOneFlag==False and packageTwoFlag==False):
+		counter = 0	
+	if (packageOneFlag==True or packageTwoFlag==True):
+		counter = 1
+	if (packageOneFlag==True and packageTwoFlag==True):
+		counter = 2
+	pub_counter.publish(counter)
+
 	rate.sleep()
 
 
