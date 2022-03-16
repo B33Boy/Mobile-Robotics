@@ -1,7 +1,11 @@
 <launch>
     <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />
 
+
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
+    </node>
+
+    #<node pkg="mr" type="search_and_return_home.py" name="search_and_return_home" output="screen">
     </node>
 
 
@@ -13,11 +17,9 @@
      	</node>
     </group>
 
-
     #<node pkg="image_transport" type="republish" name="image_republisher"
     args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
 
-    
 	<node pkg="tf" type="static_transform_publisher" name="camera_rgb_optical_frame_to_cam" 
     args="0 0 0 0 0 0 camera_rgb_optical_frame camera 10" />
 

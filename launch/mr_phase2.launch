@@ -4,11 +4,12 @@
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch" />
 
 
-    #<node pkg="mr" type="return_home.py" name="return_home" output="screen">
+    #<node pkg="mr" type="search_and_return_home.py" name="search_and_return_home" output="screen">
     </node>
 
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
     </node>
+
 
     #<node pkg="image_transport" type="republish" name="image_republisher"
     args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
