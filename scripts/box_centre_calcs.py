@@ -35,6 +35,49 @@ def callback(data):
 		Q[2] = data.markers[0].pose.pose.orientation.z
 		Q[3] = data.markers[0].pose.pose.orientation.w	
 
+def publish_marker_wrt_map(boxInfo, Q, pub_topic, color=[0,0,0,1]):
+
+	marker=Marker()
+	marker.header.stamp=rospy.get_rostime()
+
+	# Ensure that the marker is plotted wrt to map frame
+	marker.header.frame_id='map'
+
+	# Indicates marker is a cube
+	marker.type=1
+
+	# Indicates that we want to add/modify object
+	marker.action=0
+	# Set position of box
+	marker.pose.position.x = boxInfo[1]
+	marker.pose.position.y = boxInfo[2]
+	marker.pose.position.z = boxInfo[3]
+
+	# Scale box side lengths depending on top or side marker 
+	if (boxInfo[0]==0):
+		marker.scale.x=0.10
+		marker.scale.y=0.05
+		marker.scale.z=0.05
+
+	if (boxInfo[0]==1):
+		marker.scale.x=0.05
+		marker.scale.y=0.05
+		marker.scale.z=0.10
+
+	# Set orientation of box
+	marker.pose.orientation.x=Q[0]
+	marker.pose.orientation.y=Q[1]
+	marker.pose.orientation.z=Q[2]
+	marker.pose.orientation.w=Q[3]
+
+	marker.color.g=color[0]
+	marker.color.r=color[1]
+	marker.color.b=color[2]
+	marker.color.a=color[3]
+
+	pub_topic.publish(marker)
+
+
 #function to send the robot the origin as a goal when exploration is complete
 def box_locator():
 
@@ -60,7 +103,6 @@ def box_locator():
 	
 	rate = rospy.Rate(30)
     
-	# Loop to keep the nodes going until crtl-c is pressed
 	while not rospy.is_shutdown():
 		global boxInfo
 
@@ -72,47 +114,7 @@ def box_locator():
 			if (packageOneFlag==False):
 				packageOneFlag = True
 				
-				# Declare a new Marker object
-				marker1=Marker()
-				marker1.header.stamp=rospy.get_rostime()
-
-				# Ensure that the marker is plotted wrt to map frame
-				marker1.header.frame_id='map'
-				
-				# Indicates marker is a cube
-				marker1.type=1
-
-				# Indicates that we want to add/modify object
-				marker1.action=0
-				
-				# Set position of box
-				marker1.pose.position.x = boxInfo[1]
-				marker1.pose.position.y = boxInfo[2]
-				marker1.pose.position.z = boxInfo[3]
-				
-				# Scale box side lengths depending on top or side marker 
-				if (boxInfo[0]==0):
-					marker1.scale.x=0.10
-					marker1.scale.y=0.05
-					marker1.scale.z=0.05
-				if (boxInfo[0]==1):
-					marker1.scale.x=0.05
-					marker1.scale.y=0.05
-					marker1.scale.z=0.10
-				
-				# Set orientation of box
-				marker1.pose.orientation.x=Q[0]
-				marker1.pose.orientation.y=Q[1]
-				marker1.pose.orientation.z=Q[2]
-				marker1.pose.orientation.w=Q[3]
-				
-				# Set colour and transparency
-				marker1.color.g=0
-				marker1.color.r=0
-				marker1.color.b=1
-				marker1.color.a=1
-
-				pub1.publish(marker1)
+				publish_marker_wrt_map(boxInfo, Q, pub1, [0,0,1,1])
 			
 		# Check if the 2 or 3 marker ID (corresponding to 2nd package) is detected 	
 		elif (boxInfo[0]==2 or boxInfo[0]==3):
@@ -121,48 +123,8 @@ def box_locator():
 			# Set the packageTwoFlag to True to ensure detection only happens once 
 			if (packageTwoFlag==False):
 				packageTwoFlag = True
-
-				# Declare a new Marker object
-				marker2=Marker()
-				marker2.header.stamp=rospy.get_rostime()
-	
-				# Ensure that the marker is plotted wrt to map frame
-				marker2.header.frame_id='map'
-
-				# Indicates marker is a cube
-				marker2.type=1
 				
-				# Indicates that we want to add/modify object
-				marker2.action=0
-				
-				# Set position of box
-				marker2.pose.position.x = boxInfo[1]
-				marker2.pose.position.y = boxInfo[2]
-				marker2.pose.position.z = boxInfo[3]
-				
-				# Scale box side lengths depending on top or side marker 				
-				if (boxInfo[0]==2):
-					marker2.scale.x=0.10
-					marker2.scale.y=0.05
-					marker2.scale.z=0.05
-				if (boxInfo[0]==3):
-					marker2.scale.x=0.05
-					marker2.scale.y=0.05
-					marker2.scale.z=0.10
-
-				# Set orientation of box
-				marker2.pose.orientation.x=Q[0]
-				marker2.pose.orientation.y=Q[1]
-				marker2.pose.orientation.z=Q[2]
-				marker2.pose.orientation.w=Q[3]
-
-				# Set colour and transparency
-				marker2.color.g=0
-				marker2.color.r=1
-				marker2.color.b=0
-				marker2.color.a=1
-
-				pub2.publish(marker2)
+				publish_marker_wrt_map(boxInfo, Q, pub2, [1,0,0,1])
 
 
 		counter=0
