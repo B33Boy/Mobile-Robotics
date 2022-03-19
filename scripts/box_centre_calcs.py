@@ -103,7 +103,6 @@ def box_locator():
 	
 	rate = rospy.Rate(30)
     
-	# Loop to keep the nodes going until crtl-c is pressed
 	while not rospy.is_shutdown():
 		global boxInfo
 
@@ -115,6 +114,7 @@ def box_locator():
 			if (packageOneFlag==False):
 				packageOneFlag = True
 				
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 				# Declare a new Marker object
 				marker1=Marker()
@@ -160,6 +160,9 @@ def box_locator():
 =======
 				publish_marker_wrt_map(boxInfo, Q, 0, 1, pub1, [0,0,1,1])
 >>>>>>> Stashed changes
+=======
+				publish_marker_wrt_map(boxInfo, Q, pub1, [0,0,1,1])
+>>>>>>> 870f0e738a135c07b01751e37f1f4128cb97ad26
 			
 		# Check if the 2 or 3 marker ID (corresponding to 2nd package) is detected 	
 		elif (boxInfo[0]==2 or boxInfo[0]==3):
@@ -168,25 +171,8 @@ def box_locator():
 			# Set the packageTwoFlag to True to ensure detection only happens once 
 			if (packageTwoFlag==False):
 				packageTwoFlag = True
-
-				# Declare a new Marker object
-				marker2=Marker()
-				marker2.header.stamp=rospy.get_rostime()
-	
-				# Ensure that the marker is plotted wrt to map frame
-				marker2.header.frame_id='map'
-
-				# Indicates marker is a cube
-				marker2.type=1
 				
-				# Indicates that we want to add/modify object
-				marker2.action=0
-				
-				# Set position of box
-				marker2.pose.position.x = boxInfo[1]
-				marker2.pose.position.y = boxInfo[2]
-				marker2.pose.position.z = boxInfo[3]
-				
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 				# Scale box side lengths depending on top or side marker 				
 				if (boxInfo[0]==2):
@@ -214,6 +200,9 @@ def box_locator():
 =======
 				publish_marker_wrt_map(boxInfo, Q, 2, 3, pub2, [1,0,0,1])
 >>>>>>> Stashed changes
+=======
+				publish_marker_wrt_map(boxInfo, Q, pub2, [1,0,0,1])
+>>>>>>> 870f0e738a135c07b01751e37f1f4128cb97ad26
 
 
 		counter=0
