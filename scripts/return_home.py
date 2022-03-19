@@ -6,26 +6,41 @@ from actionlib_msgs.msg import GoalID
 #flag used to ensure home goal is only sent once
 flag = False
 
-#ros return_home subscriber callback function
-#Checks if data has been published to move_base/cancel topic and changes flag
 def callback(data):
-        if (data.id==''):
+
+    """
+	Sets flag to True when navigation is terminated
+
+    Input
+    :param data: message on move_base/cancel 
+ 
+    Output
+    :return: returns nothing
+    """
+
+	if (data.id==''):
 		global flag
 		flag = True	
 
-#function to send the robot the origin as a goal when exploration is complete
+# Function to send the robot the origin as a goal when exploration is complete
 def return_home():
-    #initialize ros subscriber to move_base/cancel
+    # Initialize ros subscriber to move_base/cancel
     rospy.init_node('return_home', anonymous=True)
-    rospy.Subscriber('move_base/cancel', GoalID, callback)
-    #initialize ros publisher to move_base_simple/goal
+    
+	# Create a subscriber to move_base/cancel topic
+	rospy.Subscriber('move_base/cancel', GoalID, callback)
+    
+	# Initialize ROS publisher to move_base_simple/goal
     pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
-    rate = rospy.Rate(20)
-    #loop to keep the nodes going
+    
+	rate = rospy.Rate(20)
+    
+	# Loop to keep the nodes going
     while not rospy.is_shutdown():
-    #check is mapping is complete (flag)
+    
+	# Check is mapping is complete (flag)
 	if (flag==True):
-		#if mapping is complete, let user know and then return to home
+		# If mapping is complete, let user know and then return to home
 		print("EXPLORATION STOPPED")
 		goal = PoseStamped()
 		goal.header.stamp=rospy.get_rostime()
@@ -36,6 +51,7 @@ def return_home():
 		goal.pose.orientation.w=1.0
 		rospy.loginfo(goal)
 		pub.publish(goal)
+		
 		global flag
 		flag = False   	
 	rate.sleep()

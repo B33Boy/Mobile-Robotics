@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 import rospy
 import numpy as np
-from std_msgs.msg import String, Int32
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from visualization_msgs.msg import Marker
-from multiprocessing import Process, Pipe
-import thread, time
 
-#flag used to ensure home goal is only sent once
+# Flag used to ensure home goal is only sent once
 packageOneFlag = False
 packageTwoFlag = False
 Q = [0,0,0,0]
 boxInfo = [5,5,5,5]
 #boxReference = {'ids': 0,1,2,3, 'width': 10,5,10,5, 'height': 5,5,5,5, 'depth': 5,10,5,10}
 
-#ros return_home subscriber callback function
-#Checks if data has been published to move_base/cancel topic and changes flag
 
 def quaternion_rotation_matrix(Q):
     """
@@ -59,6 +54,16 @@ def quaternion_rotation_matrix(Q):
 
 
 def callback(data):
+    """
+    Callback function to check and parse the aruco markers' pose with respect to the camera
+ 
+    Input
+    :param data: data of the message received on a topic that is of hierarchial structure
+ 
+    Output
+    :return: 
+    """
+    
 	if(data.markers[0].id!=''):
 		global boxInfo
 		boxInfo[0] = data.markers[0].id
@@ -71,83 +76,125 @@ def callback(data):
 		Q[2] = data.markers[0].pose.pose.orientation.z
 		Q[3] = data.markers[0].pose.pose.orientation.w	
 
-#function to send the robot the origin as a goal when exploration is complete
 def box_locator():
-    #initialize ros subscriber to move_base/cancel
+
+    """
+    Function to create ROS nodes to utilize AlvarMarkers to check and parse the aruco markers' pose with respect to the camera
+
+    Output
+    :return: returns nothing
+    """
+	
+    # Initialize ROS node called box_locator
     rospy.init_node('box_locator', anonymous=True)
-    rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
-    #initialize ros publisher to move_base_simple/goal
+    
+	# Initialize subscriber to ar_pose_marker topic and call the callback function when data arrives
+	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
+    
+	# Initialize ROS publisher to publish pose of markers 
     pub1 = rospy.Publisher('visualization_marker_1', Marker, queue_size=100)
     pub2 = rospy.Publisher('visualization_marker_2', Marker, queue_size=100)
-    rate = rospy.Rate(20)
-    #loop to keep the nodes going
+    
+	rate = rospy.Rate(20)
+    
+	# Loop to keep the nodes going until crtl-c is pressed
     while not rospy.is_shutdown():
-    #check is mapping is complete (flag)
-	global boxInfo
-	if (boxInfo[0]==0 or boxInfo[0]==1):
-		global packageOneFlag
-		if (packageOneFlag==False):
-			packageOneFlag = True
-			rotM = quaternion_rotation_matrix(Q)
-			boxGeo0 = np.array([[0.022], [0], [-0.05]])
-			boxGeo1 = np.array([[0],[0],[-0.1]])
-			marker1=Marker()
-			marker1.header.stamp=rospy.get_rostime()
-			marker1.header.frame_id='map'
-			if (boxInfo[0]==0):
-				marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo0)
-				marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo0)
-				marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo0)
-			if (boxInfo[0]==1):
-				marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo1)
-				marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo1)
-				marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo1)
-			marker1.pose.orientation.x=Q[0]
-			marker1.pose.orientation.y=Q[1]
-			marker1.pose.orientation.z=Q[2]
-			marker1.pose.orientation.w=Q[3]
-			marker1.color.g=0
-			marker1.color.r=0
-			marker1.color.b=255
-			marker1.color.a=1
-			marker1.scale.x=0.05
-			marker1.scale.y=0.05
-			marker1.scale.z=0.05
-			pub1.publish(marker1)
-			
-			
-	elif (boxInfo[0]==2 or boxInfo[0]==3):
-		global packageTwoFLag
-		if (packageTwoFlag==False):
-			packageTwoFlag = True
-			rotM = quaternion_rotation_matrix(Q)
-			boxGeo2 = np.array([[0.022], [0], [-0.05]])
-			boxGeo3 = np.array([[0],[0],[-0.1]])
-			marker2=Marker()
-			marker2.header.stamp=rospy.get_rostime()
-			marker2.header.frame_id='map'
-			if (boxInfo[0]==2):
-				marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo2)
-				marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo2)
-				marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo2)
-			if (boxInfo[0]==3):
-				marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo3)
-				marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo3)
-				marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo3)
-			marker2.pose.orientation.x=Q[0]
-			marker2.pose.orientation.y=Q[1]
-			marker2.pose.orientation.z=Q[2]
-			marker2.pose.orientation.w=Q[3]
-			marker2.color.g=0
-			marker2.color.r=255
-			marker2.color.b=0
-			marker2.color.a=1
-			marker2.scale.x=0.05
-			marker2.scale.y=0.05
-			marker2.scale.z=0.05
-			pub2.publish(marker2)
-	rate.sleep()
+		global boxInfo
+		# Check if the 0 or 1 marker ID (corresponding to 1st package) is detected 
+		if (boxInfo[0]==0 or boxInfo[0]==1):
 
+			global packageOneFlag
+			
+			# Set the packageOneFlag to True to ensure detection only happens once 
+			if (packageOneFlag==False):
+				packageOneFlag = True
+
+				# Obtain rotation matrix 
+				rotM = quaternion_rotation_matrix(Q)
+				
+				# Identify position of box centre wrt to top and side face marker
+				boxGeo0 = np.array([[0.022], [0], [-0.05]])
+				boxGeo1 = np.array([[0],[0],[-0.1]])
+				
+				# Declare a new Marker object
+				marker1=Marker()
+				marker1.header.stamp=rospy.get_rostime()
+
+				# Ensure that the marker is plotted wrt to map frame
+				marker1.header.frame_id='map'
+
+				# Calculate correct position by taking aruco pose and translating it to box centre units
+				if (boxInfo[0]==0):
+					marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo0)
+					marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo0)
+					marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo0)
+				if (boxInfo[0]==1):
+					marker1.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo1)
+					marker1.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo1)
+					marker1.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo1)
+				
+				marker1.pose.orientation.x=Q[0]
+				marker1.pose.orientation.y=Q[1]
+				marker1.pose.orientation.z=Q[2]
+				marker1.pose.orientation.w=Q[3]
+
+				# Set colour and transparency
+				marker1.color.g=0
+				marker1.color.r=0
+				marker1.color.b=255
+				marker1.color.a=1
+				marker1.scale.x=0.05
+				marker1.scale.y=0.05
+				marker1.scale.z=0.05
+				pub1.publish(marker1)
+				
+		# Check if the 2 or 3 marker ID (corresponding to 2nd package) is detected 		
+		elif (boxInfo[0]==2 or boxInfo[0]==3):
+			
+			global packageTwoFLag
+
+			# Set the packageTwoFlag to True to ensure detection only happens once 
+			if (packageTwoFlag==False):
+				packageTwoFlag = True
+				
+				# Obtain rotation matrix 
+				rotM = quaternion_rotation_matrix(Q)
+
+				# Identify position of box centre wrt to top and side face marker
+				boxGeo2 = np.array([[0.022], [0], [-0.05]])
+				boxGeo3 = np.array([[0],[0],[-0.1]])
+				
+				# Declare a new Marker object
+				marker2=Marker()
+				marker2.header.stamp=rospy.get_rostime()
+
+				# Ensure that the marker is plotted wrt to map frame
+				marker2.header.frame_id='map'
+				
+				# Calculate correct position by taking aruco pose and translating it to box centre units
+				if (boxInfo[0]==2):
+					marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo2)
+					marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo2)
+					marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo2)
+				if (boxInfo[0]==3):
+					marker2.pose.position.x = boxInfo[1]+np.dot(rotM[0,:],boxGeo3)
+					marker2.pose.position.y = boxInfo[2]+np.dot(rotM[1,:],boxGeo3)
+					marker2.pose.position.z = boxInfo[3]+np.dot(rotM[2,:],boxGeo3)
+				
+				marker2.pose.orientation.x=Q[0]
+				marker2.pose.orientation.y=Q[1]
+				marker2.pose.orientation.z=Q[2]
+				marker2.pose.orientation.w=Q[3]
+				marker2.color.g=0
+				marker2.color.r=255
+				marker2.color.b=0
+				marker2.color.a=1
+				marker2.scale.x=0.05
+				marker2.scale.y=0.05
+				marker2.scale.z=0.05
+				pub2.publish(marker2)
+		
+		rate.sleep()
 
 if __name__ == '__main__':
     try:

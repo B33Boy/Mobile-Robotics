@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 import rospy, math
-from std_msgs.msg import String, Int32
 from visualization_msgs.msg import Marker
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from sensor_msgs.msg import LaserScan
-import thread, time
 
-#flag used to ensure home goal is only sent once
+
 box=[0,19,6]
 time=[0.0,0.0]
-#ros return_home subscriber callback function
-#Checks if data has been published to move_base/cancel topic and changes flag
-def callback1(data):
+
+# Callback to save package boundaries and timestamp of scan
+def callback(data):
 	global box, time
 	box[0]=math.atan2(data.markers[0].pose.pose.position.y,data.markers[0].pose.pose.position.x)
 	box[1]=math.sqrt(data.markers[0].pose.pose.position.x*data.markers[0].pose.pose.position.x+data.markers[0].pose.pose.position.y*data.markers[0].pose.pose.position.y)
@@ -20,19 +18,23 @@ def callback1(data):
 	time[1]=data.markers[0].header.stamp.nsecs
 	
 
-#function to send the robot the origin as a goal when exploration is complete
+# Function to update costmap 
 def costmap_updater():
-    #initialize ros subscriber to move_base/cancel
+    # Initialize a node to update costmap
 	rospy.init_node('costmap_updater', anonymous=True)
-	rospy.Subscriber('box_local_marker', AlvarMarkers, callback1)
-    #initialize ros publisher to move_base_simple/goal
+	
+	# Initialize subscriber to box_local_marker topic
+	rospy.Subscriber('box_local_marker', AlvarMarkers, callback)
+
+    # Initialize publisher to scan_1 topic
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=100)
+	
 	rate = rospy.Rate(3)
-    #loop to keep the nodes going
+    
 	while not rospy.is_shutdown():
-    #check is mapping is complete (flag)
 		global box, time
-		#if (box[2]==0 or box[2]==1 or box[2]==2 or box[2]==3):
+		
+		# Create a LaserScan message and publish to box1_scan topic
 		box1_scan=LaserScan()
 		box1_scan.header.stamp.secs=time[0]
 		box1_scan.header.stamp.nsecs=time[1]
@@ -44,6 +46,7 @@ def costmap_updater():
 		box1_scan.angle_increment=0.0001
 		box1_scan.time_increment=0.0001
 		box1_scan.ranges=[box[1],box[1]]
+
 		pub1.publish(box1_scan)
 			
 	rate.sleep()

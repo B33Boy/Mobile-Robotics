@@ -7,13 +7,13 @@ from geometry_msgs.msg import Twist #
 from std_msgs.msg import Int32
 import time
 
-#flag used to ensure home goal is only sent once
+# Flag used to ensure home goal is only sent once
 flag = False
 move = Twist() # Creates a Twist message type object
 box_counter=0
 
-#ros return_home subscriber callback function
-#Checks if data has been published to move_base/cancel topic and changes flag
+# ROS return_home subscriber callback function
+# Checks if data has been published to move_base/cancel topic and changes flag
 def callback_returnHome(data):
         if (data.id==''):
 		global flag
