@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import rospy
-import numpy as np
 from std_msgs.msg import String, Int32
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from visualization_msgs.msg import Marker
@@ -13,7 +12,7 @@ boxInfo = [5,5,5,5]
 #boxReference = {'ids': 0,1,2,3, 'width': 10,5,10,5, 'height': 5,5,5,5, 'depth': 5,10,5,10}
 
 def callback(data):
-    """
+	"""
     Callback function to check and parse the aruco markers' pose with respect to the camera
  
     Input
@@ -81,7 +80,7 @@ def publish_marker_wrt_map(boxInfo, Q, boxTopID, boxSideID, pub_topic, color=[0,
 #function to send the robot the origin as a goal when exploration is complete
 def box_locator():
 
-    """
+	"""
     Function to create ROS nodes to utilize AlvarMarkers to check and parse the aruco markers' pose with respect to the camera
 
     Output
