@@ -58,8 +58,8 @@ def return_home():
             goal = PoseStamped()
             goal.header.stamp=rospy.get_rostime()
             goal.header.frame_id='map'
-            goal.pose.position.x=0
-            goal.pose.position.y=0
+            goal.pose.position.x=1.5
+            goal.pose.position.y=1.5
             goal.pose.position.z=0
             goal.pose.orientation.w=1.0
             rospy.loginfo(goal)

@@ -44,5 +44,7 @@
   <node pkg="clean_robot" type="next_goal" respawn="true" name="next_goal" output="screen" />
 
   <include file="$(find clean_robot)/launch/amcl.launch"/>
-    
+
+  <!--node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/-->
+  
 </launch>
