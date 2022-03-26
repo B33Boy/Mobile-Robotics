@@ -4,7 +4,7 @@
 <include file="$(find turtlebot3_navigation)/launch/move_base.launch" />
 
 
-    #<node pkg="mr" type="return_home_Phase3.py" name="return_home_Phase3" output="screen">
+    #<node pkg="mr" type="return_home_third.py" name="return_home" output="screen">
     </node>
 
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
@@ -36,6 +36,7 @@
 
   <node pkg="clean_robot" type="path_planning_node" respawn="false" name="path_planning_node" output="screen" clear_params="true">
      <rosparam file="$(find turtlebot3_navigation)/param/costmap_common_params_waffle_pi.yaml" command="load" ns="cleaning_costmap" />
+     <!--rosparam file="$(find mr)/config/costmap_common_params.yaml" command="load" ns="cleaning_costmap" /-->
      <rosparam file="$(find mr)/config/cleaning_costmap_params.yaml" command="load" />
   </node>
 
