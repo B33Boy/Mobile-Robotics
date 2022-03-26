@@ -34,9 +34,9 @@ def counterback(data):
         counterFlag = True
 
 # Function to send the robot the origin as a goal when exploration is complete
-def return_home():
+def return_home_Phase3():
     # Initialize ros subscriber to move_base/cancel
-    rospy.init_node('return_home', anonymous=True)
+    rospy.init_node('return_home_Phase3', anonymous=True)
     
 	# Create a subscriber to move_base/cancel topic
     rospy.Subscriber('move_base/cancel', GoalID, callback)
@@ -76,6 +76,6 @@ def return_home():
 
 if __name__ == '__main__':
     try:
-        return_home()
+        return_home_Phase3()
     except rospy.ROSInterruptException:
         pass
