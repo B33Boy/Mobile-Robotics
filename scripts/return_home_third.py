@@ -9,7 +9,7 @@ import actionlib_msgs
 #flag used to ensure home goal is only sent once
 explorationFlag = False
 counterFlag = False
-flag = False
+flag = True
 
 def callback(data):
 
@@ -58,19 +58,13 @@ def return_home_third():
             goal = PoseStamped()
             goal.header.stamp=rospy.get_rostime()
             goal.header.frame_id='map'
-            goal.pose.position.x=1.5
-            goal.pose.position.y=1.5
+            goal.pose.position.x=0
+            goal.pose.position.y=0
             goal.pose.position.z=0
             goal.pose.orientation.w=1.0
             rospy.loginfo(goal)
             pub.publish(goal)
             flag = False
-            counterFlag=False
-
-        if (explorationFlag==True and counterFlag==True and flag==False):
-            cancelGoals = GoalID()
-            pubCancel.publish(cancelGoals)
-            flag = True
 
         rate.sleep()
 

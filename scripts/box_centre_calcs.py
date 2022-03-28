@@ -124,7 +124,7 @@ def box_locator():
 			if (packageTwoFlag==False):
 				packageTwoFlag = True
 
-				publish_marker_wrt_map(boxInfo, Q, 2, 3, pub2, [1,0,0,1])
+				publish_marker_wrt_map(boxInfo, Q, 2, 3, pub2, [0,1,0,1])
 
 
 		counter=0
