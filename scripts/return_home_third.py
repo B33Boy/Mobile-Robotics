@@ -8,7 +8,7 @@ import actionlib_msgs
 
 #flag used to ensure home goal is only sent once
 explorationFlag = False
-counterFlag = False
+counterFlag = True
 flag = True
 
 def callback(data):
@@ -43,8 +43,8 @@ def return_home_third():
     rospy.Subscriber('box_counter', Int32, counterback)
     
 	# Initialize ROS publisher to move_base_simple/goal
-    pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
-    pubCancel = rospy.Publisher('move_base/cancel', GoalID, queue_size = 100)
+    pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=20)
+    #pubCancel = rospy.Publisher('move_base/cancel', GoalID, queue_size = 20)
     
     rate = rospy.Rate(20)
     
@@ -54,7 +54,7 @@ def return_home_third():
 	# Check is mapping is complete (flag)
         global explorationFlag, counterFlag, flag
 
-        if (explorationFlag==True and counterFlag==True and flag==True):
+        if (explorationFlag==True and flag==True):# and counterFlag==True):
             goal = PoseStamped()
             goal.header.stamp=rospy.get_rostime()
             goal.header.frame_id='map'

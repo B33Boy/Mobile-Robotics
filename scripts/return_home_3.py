@@ -2,9 +2,15 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
+from std_msgs.msg import Int32
+import actionlib
+import actionlib_msgs
 
 #flag used to ensure home goal is only sent once
-flag = False
+explorationFlag = False
+counterFlag = False
+flag = True
+counter = 0
 
 def callback(data):
 
@@ -19,8 +25,13 @@ def callback(data):
     """
 
 	if (data.id==''):
-		global flag
-		flag = True	
+		global explorationFlag
+		explorationFlag = True	
+
+def counterback(data):
+    if (data.data>=2):
+        global counterFlag
+        counterFlag = True
 
 # Function to send the robot the origin as a goal when exploration is complete
 def return_home():
@@ -29,7 +40,7 @@ def return_home():
     
 	# Create a subscriber to move_base/cancel topic
 	rospy.Subscriber('move_base/cancel', GoalID, callback)
-
+	rospy.Subscriber('box_counter', Int32, counterback)
     
 	# Initialize ROS publisher to move_base_simple/goal
 	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
@@ -39,9 +50,9 @@ def return_home():
 	# Loop to keep the nodes going
 	while not rospy.is_shutdown():
 
-		global flag
+		global flag, explorationFlag,counterFlag, counter
 	# Check is mapping is complete (flag)
-		if (flag==True):
+		if (flag==True and explorationFlag==True and counterFlag==True):
 		# If mapping is complete, let user know and then return to home
 			print("EXPLORATION STOPPED")
 			goal = PoseStamped()
@@ -54,8 +65,9 @@ def return_home():
 			rospy.loginfo(goal)
 			pub.publish(goal)
 			
-			global flag
-			flag = False   	
+			counter+=1
+			if(counter>=200):
+				flag = False  	
 		rate.sleep()
 
 if __name__ == '__main__':

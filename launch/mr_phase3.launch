@@ -4,7 +4,7 @@
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch" />
 
 
-    #<node pkg="mr" type="return_home_third.py" name="return_home" output="screen">
+    #<node pkg="mr" type="return_home_3.py" name="return_home" output="screen">
     </node>
 
     #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
