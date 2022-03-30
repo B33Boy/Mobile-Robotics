@@ -24,12 +24,13 @@ def costmap_updater():
 	rospy.init_node('costmap_updater', anonymous=True)
 	
 	# Initialize subscriber to box_local_marker topic
-	rospy.Subscriber('box_local_marker', AlvarMarkers, callback)
+	#rospy.Subscriber('box_local_marker', AlvarMarkers, callback)
+	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
 
     # Initialize publisher to scan_1 topic
-	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=100)
+	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=10)
 	
-	rate = rospy.Rate(3)
+	rate = rospy.Rate(1)
     
 	while not rospy.is_shutdown():
 		global box, time

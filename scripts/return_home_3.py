@@ -66,7 +66,7 @@ def return_home():
 			pub.publish(goal)
 			
 			counter+=1
-			if(counter>=200):
+			if(counter>=100):
 				flag = False  	
 		rate.sleep()
 
