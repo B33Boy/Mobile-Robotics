@@ -1,17 +1,16 @@
 <launch>
     <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" >
-      <!--remap from="scan" to="merged_scan"/-->
     </include>
     <include file="$(find explore_lite)/launch/explore.launch" />
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch" >
-      <!--arg name="move_forward_only" value="true"/-->
+      <arg name="move_forward_only" value="true"/>
     </include>
 
 
     #<node pkg="mr" type="return_home_3.py" name="return_home" output="screen">
     </node>
 
-    #<node pkg="mr" type="box_centre_calcs.py" name="box_centre_calcs" output="screen">
+    #<node pkg="mr" type="box_centre_calcs_large_markers.py" name="box_centre_calcs" output="screen">
     </node>
 
 
@@ -40,7 +39,6 @@
   
   <node pkg="clean_robot" type="path_planning_node" respawn="false" name="path_planning_node" output="screen" clear_params="true">
      <rosparam file="$(find turtlebot3_navigation)/param/costmap_common_params_waffle_pi.yaml" command="load" ns="cleaning_costmap" />
-     <!--rosparam file="$(find mr)/config/costmap_common_params.yaml" command="load" ns="cleaning_costmap" /-->
      <rosparam file="$(find mr)/config/cleaning_costmap_params.yaml" command="load" />
   </node>
 
@@ -48,21 +46,8 @@
   <node pkg="clean_robot" type="next_goal" respawn="true" name="next_goal" output="screen" />
 
   <include file="$(find clean_robot)/launch/amcl.launch">
-    <arg name="scan_topic" value="/merged_scan"/>
+    <arg name="scan_topic" value="/scan"/>
   </include>
-  
-
-  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
-	<param name="destination_frame" value="base_scan"/>
-	<param name="scan_destination_topic" value="/merged_scan"/>
-	<param name="laserscan_topics" value ="/scan" /> <!-- LIST OF THE LASER SCAN TOPICS TO SUBSCRIBE -->
-	<param name="angle_min" value="-3.14159265"/>
-	<param name="angle_max" value="3.14159265"/>
-	<param name="angle_increment" value="0.005"/> <!--value="0.0174532923847"/-->
-	<param name="scan_time" value="0.0000298699997074"/>
-	<param name="range_min" value="0.12"/>
-	<param name="range_max" value="25"/>
-	</node>
 
   <node pkg="mr" name="costmap_updater" type="costmap_updater.py" output="screen">
   </node>
