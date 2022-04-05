@@ -16,21 +16,14 @@ flag2 = True
 # Callback to save package boundaries and timestamp of scan
 def callback(data):
 	global box1, time1, box2, time2, flag1, flag2
-	print(data.markers[0].id)
-	if (data.markers[0].id==0 or data.markers[0].id==1 and flag1):
+	if (data.markers[0].id==0 or data.markers[0].id==1):
 		box1[0]=math.atan2(data.markers[0].pose.pose.position.y,data.markers[0].pose.pose.position.x)
 		box1[1]=math.sqrt(data.markers[0].pose.pose.position.x*data.markers[0].pose.pose.position.x+data.markers[0].pose.pose.position.y*data.markers[0].pose.pose.position.y)
 		box1[2]=data.markers[0].id
-		time1[0]=data.markers[0].header.stamp.secs
-		time1[1]=data.markers[0].header.stamp.nsecs
-		flag1 = False
-	if (data.markers[0].id==2 or data.markers[0].id==3 and flag2):
+	if (data.markers[0].id==2 or data.markers[0].id==3):
 		box2[0]=math.atan2(data.markers[0].pose.pose.position.y,data.markers[0].pose.pose.position.x)
 		box2[1]=math.sqrt(data.markers[0].pose.pose.position.x*data.markers[0].pose.pose.position.x+data.markers[0].pose.pose.position.y*data.markers[0].pose.pose.position.y)
 		box2[2]=data.markers[0].id
-		time2[0]=data.markers[0].header.stamp.secs
-		time2[1]=data.markers[0].header.stamp.nsecs
-		flag2 = False
 
 # Function to update costmap 
 def costmap_updater():
@@ -42,7 +35,7 @@ def costmap_updater():
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
 
     # Initialize publisher to scan_1 topic
-	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size=10)
+	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size = 10)
 	pub2 = rospy.Publisher('scan_2', LaserScan, queue_size = 10)
 	
 	rate = rospy.Rate(1)
@@ -52,27 +45,20 @@ def costmap_updater():
 		
 		# Create a LaserScan message and publish to box1_scan topic
 		box1_scan=LaserScan()
-		box1_scan.header.stamp.secs=time1[0]
-		box1_scan.header.stamp.nsecs=time1[1]
+		box1_scan.header.stamp=rospy.get_rostime()
 		box1_scan.header.frame_id='map'
-		#box1_scan.angle_min=box1[0]-0.015
-		#box1_scan.angle_max=box1[0]+0.015
 		box1_scan.angle_min=box1[0]
 		box1_scan.angle_max=box1[0]+0.0001
 		box1_scan.range_min=0
 		box1_scan.range_max=20
 		box1_scan.angle_increment=0.0001
 		box1_scan.time_increment=0.0001
-		#box1_scan.ranges=[box1[1]+0.025,box1[1]+0.025,box1[1]+0.025]
 		box1_scan.ranges=[box1[1]+0.025,box1[1]+0.025]
 		pub1.publish(box1_scan)
 
 		box2_scan=LaserScan()
-		box2_scan.header.stamp.secs=time2[0]
-		box2_scan.header.stamp.nsecs=time2[1]
+		box2_scan.header.stamp=rospy.get_rostime()
 		box2_scan.header.frame_id='map'
-		#box2_scan.angle_min=box2[0]-0.015
-		#box2_scan.angle_max=box2[0]+0.015
 		box2_scan.angle_min=box2[0]
 		box2_scan.angle_max=box2[0]+0.0001
 		box2_scan.range_min=0

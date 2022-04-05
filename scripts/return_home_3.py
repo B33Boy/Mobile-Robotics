@@ -13,9 +13,8 @@ flag = True
 counter = 0
 
 def callback(data):
-
 	"""
-	Sets flag to True when navigation is terminated
+	Sets explorationFlag to True when exploration is terminated
 
     Input
     :param data: message on move_base/cancel 
@@ -29,29 +28,40 @@ def callback(data):
 		explorationFlag = True	
 
 def counterback(data):
-    if (data.data>=2):
-        global counterFlag
-        counterFlag = True
+	"""
+	Sets counterFlag to True when 2 boxes have been detected
 
-# Function to send the robot the origin as a goal when exploration is complete
+    Input
+    :param data: message on move_base/cancel 
+ 
+    Output
+    :return: returns nothing
+	"""
+	
+	if (data.data>=2):
+		global counterFlag
+		counterFlag = True
+
+# Function to send the robot the origin as a goal when mapping and box exploration are complete
 def return_home():
-    # Initialize ros subscriber to move_base/cancel
+    # Initialize ros node
 	rospy.init_node('return_home', anonymous=True)
     
-	# Create a subscriber to move_base/cancel topic
+	# Create a subscriber to move_base/cancel topic and box_counter topic
 	rospy.Subscriber('move_base/cancel', GoalID, callback)
 	rospy.Subscriber('box_counter', Int32, counterback)
     
 	# Initialize ROS publisher to move_base_simple/goal
 	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
     
+	# Set node publish rate
 	rate = rospy.Rate(20)
     
 	# Loop to keep the nodes going
 	while not rospy.is_shutdown():
 
 		global flag, explorationFlag,counterFlag, counter
-	# Check is mapping is complete (flag)
+	# Check is mapping and box exploration are complete
 		if (flag==True and explorationFlag==True and counterFlag==True):
 		# If mapping is complete, let user know and then return to home
 			print("EXPLORATION STOPPED")

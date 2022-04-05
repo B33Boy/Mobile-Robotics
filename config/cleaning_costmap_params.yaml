@@ -11,5 +11,5 @@ cleaning_costmap:
    map_type: costmap
 
 cleaning_plan_nodehandle:   
-   size_of_cell: 4.4 #4.4
+   size_of_cell: 7 #4.4
    grid_covered_value: 200
