@@ -32,7 +32,7 @@ def counterback(data):
 	Sets counterFlag to True when 2 boxes have been detected
 
     Input
-    :param data: message on move_base/cancel 
+    :param data: message on box_counter 
  
     Output
     :return: returns nothing
@@ -42,8 +42,14 @@ def counterback(data):
 		global counterFlag
 		counterFlag = True
 
-# Function to send the robot the origin as a goal when mapping and box exploration are complete
 def return_home():
+	"""
+    Function to create ROS node that sends the robot origin as a goal.
+	This happens when mapping and box exploration are complete
+
+    Output
+    :return: returns nothing
+    """
     # Initialize ros node
 	rospy.init_node('return_home', anonymous=True)
     
@@ -63,8 +69,8 @@ def return_home():
 		global flag, explorationFlag,counterFlag, counter
 	# Check is mapping and box exploration are complete
 		if (flag==True and explorationFlag==True and counterFlag==True):
-		# If mapping is complete, let user know and then return to home
-			print("EXPLORATION STOPPED")
+		# If everything is complete, let user know and then publish home goal
+			print("Returning Home")
 			goal = PoseStamped()
 			goal.header.stamp=rospy.get_rostime()
 			goal.header.frame_id='map'
@@ -75,6 +81,7 @@ def return_home():
 			rospy.loginfo(goal)
 			pub.publish(goal)
 			
+			# Counter to publish goal 100 times to ensure it overrides the path planning algorithm
 			counter+=1
 			if(counter>=100):
 				flag = False  	

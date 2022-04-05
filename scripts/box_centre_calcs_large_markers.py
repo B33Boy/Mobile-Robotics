@@ -35,7 +35,17 @@ def callback(data):
 		Q[3] = data.markers[0].pose.pose.orientation.w	
 
 def publish_marker_wrt_map(boxInfo, Q, boxTopID, boxSideID, pub_topic, color=[0,0,0,1]):
+	"""
+    Function to build marker object for publishing
+ 
+    Input
+    :param data: data from the aruco callback function
+ 
+    Output
+    :return: 
+    """
 
+	# build marker object
 	marker=Marker()
 	marker.header.stamp=rospy.get_rostime()
 
@@ -81,7 +91,7 @@ def publish_marker_wrt_map(boxInfo, Q, boxTopID, boxSideID, pub_topic, color=[0,
 def box_locator():
 
 	"""
-    Function to create ROS nodes to utilize AlvarMarkers to check and parse the aruco markers' pose with respect to the camera
+    Function to create ROS node to utilize AlvarMarkers to check and parse the aruco markers' pose with respect to the camera
 
     Output
     :return: returns nothing
@@ -100,14 +110,14 @@ def box_locator():
 	# Initialize ROS publisher to publish number of boxes detected
 	pub_counter = rospy.Publisher('box_counter', Int32, queue_size=10)
 	
+	# Set node rate
 	rate = rospy.Rate(30)
     
 	while not rospy.is_shutdown():
-		global boxInfo
+		global boxInfo, packageOneFlag, packageTwoFlag
 
 		# Check if the 0 or 1 marker ID (corresponding to 1st package) is detected 
 		if (boxInfo[0]==0 or boxInfo[0]==1):
-			global packageOneFlag
 
 			# Set the packageOneFlag to True to ensure detection only happens once 
 			if (packageOneFlag==False):
@@ -118,7 +128,6 @@ def box_locator():
 			
 		# Check if the 2 or 3 marker ID (corresponding to 2nd package) is detected 	
 		elif (boxInfo[0]==2 or boxInfo[0]==3):
-			global packageTwoFlag
 
 			# Set the packageTwoFlag to True to ensure detection only happens once 
 			if (packageTwoFlag==False):

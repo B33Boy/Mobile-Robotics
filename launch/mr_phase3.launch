@@ -4,6 +4,7 @@
     </include>
     <include file="$(find explore_lite)/launch/explore.launch" />
     <include file="$(find turtlebot3_navigation)/launch/move_base.launch" >
+      <!--Set to true if turtlebot is only to move forward-->
       <arg name="move_forward_only" value="false"/>
     </include>
 
