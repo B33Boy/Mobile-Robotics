@@ -5,17 +5,28 @@ from visualization_msgs.msg import Marker
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from sensor_msgs.msg import LaserScan
 
-
+# Initialize boxes and time variables for creating fake laserscans
+# Note: the boxes are initialized at non-zero values in order to appear outside the map such that costmap cannot prematurely process the boxes
 box1=[0,19,6]
 time1=[0.0,0.0]
 box2=[0,19,6]
 time2=[0.0,0.0]
+
+# Initialize flags 
 flag1 = True
 flag2 = True
 
-# Callback to save package boundaries and timestamp of scan
+
 def callback(data):
+	""" Callback function that processes AlvarMarkers messages to compute box dimensions
+
+	Args:
+		data (AlvarMarker): Message of AlvarMarker  
+	"""
 	global box1, time1, box2, time2, flag1, flag2
+
+	# compute the positions of the boxes with respect to the world coordinate system
+	# Marker id 0 and 1 is associated with first box, marker id 2 and 3 is associated with the second box
 	if (data.markers[0].id==0 or data.markers[0].id==1):
 		box1[0]=math.atan2(data.markers[0].pose.pose.position.y,data.markers[0].pose.pose.position.x)
 		box1[1]=math.sqrt(data.markers[0].pose.pose.position.x*data.markers[0].pose.pose.position.x+data.markers[0].pose.pose.position.y*data.markers[0].pose.pose.position.y)
@@ -25,13 +36,13 @@ def callback(data):
 		box2[1]=math.sqrt(data.markers[0].pose.pose.position.x*data.markers[0].pose.pose.position.x+data.markers[0].pose.pose.position.y*data.markers[0].pose.pose.position.y)
 		box2[2]=data.markers[0].id
 
-# Function to update costmap 
+# Function to update costmap regularly 
 def costmap_updater():
+
     # Initialize a node to update costmap
 	rospy.init_node('costmap_updater', anonymous=True)
 	
 	# Initialize subscriber to box_local_marker topic
-	#rospy.Subscriber('box_local_marker', AlvarMarkers, callback)
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
 
     # Initialize publisher to scan_1 topic
