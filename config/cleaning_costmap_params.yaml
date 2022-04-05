@@ -10,6 +10,7 @@ cleaning_costmap:
    inflation_radius: 0.25
    map_type: costmap
 
+#Setup distance between cleaning lines
 cleaning_plan_nodehandle:   
-   size_of_cell: 7 #4.4
+   size_of_cell: 7
    grid_covered_value: 200
