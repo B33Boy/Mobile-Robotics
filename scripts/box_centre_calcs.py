@@ -94,11 +94,11 @@ def box_locator():
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
 	
 	# Initialize ROS publisher to publish pose of markers
-	pub1 = rospy.Publisher('visualization_marker_1', Marker, queue_size=100)
-	pub2 = rospy.Publisher('visualization_marker_2', Marker, queue_size=100)
+	pub1 = rospy.Publisher('visualization_marker_1', Marker, queue_size=30)
+	pub2 = rospy.Publisher('visualization_marker_2', Marker, queue_size=30)
 	
 	# Initialize ROS publisher to publish number of boxes detected
-	pub_counter = rospy.Publisher('box_counter', Int32, queue_size=10)
+	pub_counter = rospy.Publisher('box_counter', Int32, queue_size=30)
 	
 	rate = rospy.Rate(30)
     

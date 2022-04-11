@@ -43,7 +43,7 @@ def costmap_updater():
 	rospy.init_node('costmap_updater', anonymous=True)
 	
 	# Initialize subscriber to box_local_marker topic
-	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
+	rospy.Subscriber('box_local', AlvarMarkers, callback)
 
     # Initialize publisher to scan_1 topic
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size = 10)
@@ -57,7 +57,7 @@ def costmap_updater():
 		# Create a LaserScan message and publish to box1_scan topic
 		box1_scan=LaserScan()
 		box1_scan.header.stamp=rospy.get_rostime()
-		box1_scan.header.frame_id='map'
+		box1_scan.header.frame_id='base_scan'
 		box1_scan.angle_min=box1[0]
 		box1_scan.angle_max=box1[0]+0.0001
 		box1_scan.range_min=0
@@ -69,12 +69,12 @@ def costmap_updater():
 
 		box2_scan=LaserScan()
 		box2_scan.header.stamp=rospy.get_rostime()
-		box2_scan.header.frame_id='map'
+		box2_scan.header.frame_id='base_scan'
 		box2_scan.angle_min=box2[0]
 		box2_scan.angle_max=box2[0]+0.0001
 		box2_scan.range_min=0
 		box2_scan.range_max=20
-		box2_scan.angle_increment=0.015
+		box2_scan.angle_increment=0.0001
 		box2_scan.time_increment=0.0001
 		box2_scan.ranges=[box2[1]+0.025,box2[1]+0.025]
 		pub2.publish(box2_scan)

@@ -10,5 +10,5 @@ cost_scaling_factor: 3.0
 map_type: costmap
 observation_sources: scan scan1 scan2
 scan: {sensor_frame: base_scan, data_type: LaserScan, topic: scan, marking: true, clearing: true}
-scan1: {sensor_frame: map, data_type: LaserScan, topic: scan_1, marking: true, clearing: false}
-scan2: {sensor_frame: map, data_type: LaserScan, topic: scan_2, marking: true, clearing: false}
+scan1: {sensor_frame: base_scan, data_type: LaserScan, topic: scan_1, marking: true, clearing: false}
+scan2: {sensor_frame: base_scan, data_type: LaserScan, topic: scan_2, marking: true, clearing: false}

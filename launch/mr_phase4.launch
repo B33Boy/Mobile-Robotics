@@ -1,0 +1,62 @@
+<launch>
+  <!--start slam, explore lite, and move_base-->
+    <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" >
+    </include>
+    <include file="$(find explore_lite)/launch/explore.launch" />
+    <include file="$(find turtlebot3_navigation)/launch/move_base.launch" >
+      <!--Set to true if turtlebot is only to move forward-->
+      <arg name="move_forward_only" value="false"/>
+    </include>
+
+    <node pkg="rosserial_python" type="serial_node.py" name="nano_serial_node">
+      <param name="port" value="/dev/ttyACM1"/>
+      <param name="baud" value="115200"/>
+    </node>
+
+
+    <!--start custom nodes to return home, make the markers, and update the costmap-->
+    <node pkg="mr" type="box_retrieval.py" name="box_retrieval" output="screen">
+    </node>
+    <node pkg="mr" type="box_centre_calcs_large_markers.py" name="box_centre_calcs" output="screen">
+    </node>
+
+
+    <!--implement the camera-->
+    <node pkg="image_transport" type="republish" name="image_republisher"
+    args="compressed in:=raspicam_node/image raw out:=raspicam_node/image"/>
+
+    <group ns="raspicam_node">
+    	<node pkg="image_proc" type="image_proc" name="image_proc">
+    		<remap from="image_raw"		to="/image"/>
+    		<param name="approximate_s"		type="bool"		value="true"/>
+    		<param name="queue_size"		type="int"		value="20"/>
+     	</node>
+    </group>
+    
+	<node pkg="tf" type="static_transform_publisher" name="camera_rgb_optical_frame_to_cam" 
+    args="0 0 0 0 0 0 camera_rgb_optical_frame camera 10" />
+
+	<node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar" respawn="false" output="screen">
+		<param name="marker_size"           type="double" value="4.5" />
+		<param name="max_new_marker_error"  type="double" value="0.08" />
+		<param name="max_track_error"       type="double" value="0.2" />
+		<param name="output_frame"          type="string" value="map" />
+		<remap from="camera_image"  to="/raspicam_node/image" />
+		<remap from="camera_info"   to="/raspicam_node/camera_info" />
+	</node>
+
+  <!--path planning and localization after exploring-->
+  <node pkg="clean_robot" type="path_planning_node" respawn="false" name="path_planning_node" output="screen" clear_params="true">
+     <rosparam file="$(find turtlebot3_navigation)/param/costmap_common_params_waffle_pi.yaml" command="load" ns="cleaning_costmap" />
+     <rosparam file="$(find mr)/config/cleaning_costmap_params.yaml" command="load" />
+  </node>
+
+  <param name="/NextGoal/tolerance_goal" value="0.25" />
+  <node pkg="clean_robot" type="next_goal" respawn="true" name="next_goal" output="screen" />
+
+  <include file="$(find clean_robot)/launch/amcl.launch">
+    <arg name="scan_topic" value="/scan"/>
+  </include>
+
+    
+</launch>
