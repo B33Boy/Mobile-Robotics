@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import rospy
 import gpiozero as Servo
 from time import sleep
