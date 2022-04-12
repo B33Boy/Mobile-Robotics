@@ -5,7 +5,7 @@ from time import sleep
 from std_msgs.msg import Int32
 
 servo = Servo(24)
-angle = 0
+angle = -0.5
 
 def angleCallback(data):
     global angle
