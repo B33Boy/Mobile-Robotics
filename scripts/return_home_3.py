@@ -58,7 +58,7 @@ def return_home():
 	rospy.Subscriber('box_counter', Int32, counterback)
     
 	# Initialize ROS publisher to move_base_simple/goal
-	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=100)
+	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=20)
     
 	# Set node publish rate
 	rate = rospy.Rate(20)

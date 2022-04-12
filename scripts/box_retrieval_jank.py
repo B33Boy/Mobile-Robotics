@@ -1,20 +1,36 @@
 #!/usr/bin/env python
-from curses import panel
 import rospy
 from geometry_msgs.msg import PoseStamped
-from actionlib_msgs.msg import GoalStatus
+from actionlib_msgs.msg import GoalID
 from std_msgs.msg import UInt16, Int32
 import actionlib
-from actionlib_msgs.msg import GoalStatusArray
+import actionlib_msgs
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from ar_track_alvar_msgs.msg import AlvarMarkers
+from actionlib_msgs.msg import GoalStatusArray
+import RPi.GPIO as GPIO
+from time import sleep
 
 #flag used to ensure home goal is only sent once
+status_goal = 10
 counterFlag = False
 collectionFlag = True
+flag = True
 counter = 0
 Q = [0,0,0,0]
 boxInfo = [5,5,5,5]
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(17, GPIO.OUT)
+p = GPIO.PWM(17, 50)
+p.start(0)
+
+def SetAngle(angle):
+	duty = angle/18+2
+	GPIO.output(17, True)
+	p.ChangeDutyCycle(duty)
+	sleep(1)
+	GPIO.output(17, False)
+	p.ChangeDutyCycle(0)
 
 def counterback(data):
 	"""
@@ -73,10 +89,11 @@ def return_home():
 	# Create a subscriber to move_base/cancel topic and box_counter topic
 	rospy.Subscriber('box_counter', Int32, counterback)
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
-	rospy.Subscriber('move_base/status', GoalStatusArray, status_callback)
     
 	# Initialize ROS publisher to move_base_simple/goal
-	pubServo = rospy.Publisher('servoPos', UInt16, queue_size=20)
+	pubServo = rospy.Publisher('servo_angle', Int32, queue_size=20)
+	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=20)
+	rospy.Subscriber('move_base/status', GoalStatusArray, status_callback)
     
 	# Set node publish rate
 	rate = rospy.Rate(20)
@@ -84,59 +101,52 @@ def return_home():
 	# Loop to keep the nodes going
 	while not rospy.is_shutdown():
 
-		global counterFlag, counter, collectionFlag
+
+		global flag, counterFlag, counter, collectionFlag
 	# Check is mapping and box exploration are complete
-		if (counterFlag==True and collectionFlag==True):
-			client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-			client.wait_for_server()
-			goal = MoveBaseGoal()
-			goal.target_pose.header.frame_id = "map"
-			goal.target_pose.header.stamp = rospy.Time.now()
-			goal.target_pose.pose.position.x = boxInfo[1]
-			goal.target_pose.pose.position.y = boxInfo[2]
-			goal.target_pose.pose.orientation.w = 1.0
-
-			client.send_goal(goal)
-			wait = client.wait_for_result()
-			if (status_goal==1 or status_goal==0):
-				client.send_goal(goal)
-			if (status_goal==3):
-				collectionFlag  = False
-				pubServo.publish(55)
-			if not wait:
-				rospy.logerr("Action server not available!")
-				rospy.signal_shutdown("Action server not available!")
-			else:
-				return client.get_result() 
+		if (counterFlag==True and collectionFlag==True and flag==True):
+		# If everything is complete, let user know and then publish home goal)
+			goal = PoseStamped()
+			goal.header.stamp=rospy.get_rostime()
+			goal.header.frame_id='map'
+			goal.pose.position.x=boxInfo[1]
+			goal.pose.position.y=boxInfo[2]
+			goal.pose.orientation.w=1.0
+			rospy.loginfo(goal)
+			pub.publish(goal)
+			
+			# Counter to publish goal 100 times to ensure it overrides the path planning algorithm
+			counter+=1
+			if(counter>=20):
+				flag = False
+		if (status_goal==3 and collectionFlag==True and flag==False):
+			collectionFlag  = False
+			flag = True
+			pubServo.publish(55)
+			counter = 0
 		
-		if (counterFlag==True and collectionFlag==False):
-			client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-			client.wait_for_server()
-			goal = MoveBaseGoal()
-			goal.target_pose.header.frame_id = "map"
-			goal.target_pose.header.stamp = rospy.Time.now()
-			goal.target_pose.pose.position.x = 0.0
-			goal.target_pose.pose.position.y = 0.0
-			goal.target_pose.pose.orientation.w = 1.0
-
-			client.send_goal(goal)
-			wait = client.wait_for_result()
-			if (status_goal==1 or status_goal==0):
-				client.send_goal(goal)
-			if (status_goal==3):
-				collectionFlag  = False
-				pubServo.publish(220)
-			if not wait:
-				rospy.logerr("Action server not available!")
-				rospy.signal_shutdown("Action server not available!")
-			else:
-				return client.get_result()
+		if (counterFlag==True and collectionFlag==False and flag==True):
+			goal = PoseStamped()
+			goal.header.stamp=rospy.get_rostime()
+			goal.header.frame_id='map'
+			goal.pose.position.x=0
+			goal.pose.position.y=0
+			goal.pose.position.z=0
+			goal.pose.orientation.w=1.0
+			rospy.loginfo(goal)
+			pub.publish(goal)
+			
+			# Counter to publish goal 100 times to ensure it overrides the path planning algorithm
+			counter+=1
+			if(counter>=20):
+				flag = False
+		if (status_goal==3 and collectionFlag==False and flag==False):
+			pubServo.publish(180)
 				
 		rate.sleep()
 
 if __name__ == '__main__':
-	try:
-		return_home()
-		rospy.spin()
-	except rospy.ROSInterruptException:
-		pass
+    try:
+        return_home()
+    except rospy.ROSInterruptException:
+        pass
