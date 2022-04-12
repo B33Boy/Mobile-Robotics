@@ -1,4 +1,6 @@
 <launch>
     <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch" />
     <include file="$(find turtlebot3_bringup)/launch/turtlebot3_rpicamera.launch" />
+    <node pkg="mr" type="gpio_test.py" name="servo_control">
+    </node>
 </launch>
