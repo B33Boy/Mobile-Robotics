@@ -2,13 +2,12 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
-from std_msgs.msg import UInt16, Int32
+from std_msgs.msg import Float32, Int32
 import actionlib
 import actionlib_msgs
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from actionlib_msgs.msg import GoalStatusArray
-import RPi.GPIO as GPIO
 from time import sleep
 
 #flag used to ensure home goal is only sent once
@@ -19,18 +18,6 @@ flag = True
 counter = 0
 Q = [0,0,0,0]
 boxInfo = [5,5,5,5]
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(17, GPIO.OUT)
-p = GPIO.PWM(17, 50)
-p.start(0)
-
-def SetAngle(angle):
-	duty = angle/18+2
-	GPIO.output(17, True)
-	p.ChangeDutyCycle(duty)
-	sleep(1)
-	GPIO.output(17, False)
-	p.ChangeDutyCycle(0)
 
 def counterback(data):
 	"""
@@ -91,7 +78,7 @@ def return_home():
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
     
 	# Initialize ROS publisher to move_base_simple/goal
-	pubServo = rospy.Publisher('servo_angle', Int32, queue_size=20)
+	pubServo = rospy.Publisher('servo_angle', Float32, queue_size=20)
 	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=20)
 	rospy.Subscriber('move_base/status', GoalStatusArray, status_callback)
     
@@ -122,7 +109,7 @@ def return_home():
 		if (status_goal==3 and collectionFlag==True and flag==False):
 			collectionFlag  = False
 			flag = True
-			pubServo.publish(55)
+			pubServo.publish(-0.8)
 			counter = 0
 		
 		if (counterFlag==True and collectionFlag==False and flag==True):
@@ -141,7 +128,7 @@ def return_home():
 			if(counter>=20):
 				flag = False
 		if (status_goal==3 and collectionFlag==False and flag==False):
-			pubServo.publish(180)
+			pubServo.publish(1)
 				
 		rate.sleep()
 
