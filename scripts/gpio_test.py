@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import rospy
-import gpiozero as Servo
+from gpiozero import Servo
 from time import sleep
 from std_msgs.msg import Int32
 
