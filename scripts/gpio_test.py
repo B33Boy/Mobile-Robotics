@@ -1,9 +1,11 @@
 import rospy
+import gpiozero as Servo
 import RPi.GPIO as GPIO
 from time import sleep
 from std_msgs.msg import Int32
 
-angle = 180
+servo = Servo(24)
+angle = 0
 
 def angleCallback(data):
     global angle
@@ -11,12 +13,7 @@ def angleCallback(data):
 
 def SetAngle():
     global angle
-    duty = angle/18+2
-    GPIO.output(24, True)
-    p.ChangeDutyCycle(duty)
-    sleep(1)
-    GPIO.output(24, False)
-    p.ChangeDutyCycle(0)
+    servo.value = angle
 
 if __name__ == '__main__':
     try:
