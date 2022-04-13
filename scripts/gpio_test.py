@@ -9,8 +9,7 @@ angle = 1
 
 def angleCallback(data):
     global angle
-    angle = data
-    print("Got new servo angle")
+    angle = round(data, 1)
 
 def SetAngle():
     global angle
