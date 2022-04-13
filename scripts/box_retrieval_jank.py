@@ -109,7 +109,7 @@ def return_home():
 		if (status_goal==3 and collectionFlag==True and flag==False):
 			collectionFlag  = False
 			flag = True
-			pubServo.publish(-0.8)
+			pubServo.publish(-0.2)
 			counter = 0
 		
 		if (counterFlag==True and collectionFlag==False and flag==True):
@@ -128,7 +128,7 @@ def return_home():
 			if(counter>=20):
 				flag = False
 		if (status_goal==3 and collectionFlag==False and flag==False):
-			pubServo.publish(1)
+			pubServo.publish(0.2)
 				
 		rate.sleep()
 
