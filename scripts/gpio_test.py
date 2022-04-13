@@ -9,7 +9,7 @@ angle = 1
 
 def angleCallback(data):
     global angle
-    angle = round(data, 1)
+    angle = round(data.data, 1)
 
 def SetAngle():
     global angle
