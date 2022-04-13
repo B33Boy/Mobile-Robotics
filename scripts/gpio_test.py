@@ -10,6 +10,7 @@ angle = 1
 def angleCallback(data):
     global angle
     angle = data
+    print("Got new servo angle")
 
 def SetAngle():
     global angle
