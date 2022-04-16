@@ -109,7 +109,7 @@ void pose_callback(const nav_msgs::Odometry &poses)
 
 
 void counterback(const std_msgs::Int32 numBoxesDetected){  
-	if (numBoxesDetected.data >= 2){
+	if (numBoxesDetected.data >= 1){
     counterFlag = false;
   }
 }

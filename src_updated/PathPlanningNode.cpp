@@ -24,7 +24,7 @@ void movecallback(const actionlib_msgs::GoalID moveCancelled){
 }
 
 void counterback(const std_msgs::Int32 numBoxesDetected){  
-	if (numBoxesDetected.data >= 2){
+	if (numBoxesDetected.data >= 1){
     counterFlag = false;
   }
 }

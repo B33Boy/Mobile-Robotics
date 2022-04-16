@@ -9,11 +9,9 @@
     </include>
 
     <!--start custom nodes to return home, make the markers, and update the costmap-->
-    <node pkg="mr" type="box_retrieval.py" name="box_retrieval" output="screen">
+    <node pkg="mr" type="box_retrieval_jank.py" name="box_retrieval" output="screen">
     </node>
     <node pkg="mr" type="box_centre_calcs_large_markers.py" name="box_centre_calcs" output="screen">
-    </node>
-    <node pkg="mr" name="costmap_updater" type="costmap_updater.py" output="screen">
     </node>
 
 
@@ -39,18 +37,6 @@
 		<param name="output_frame"          type="string" value="map" />
 		<remap from="camera_image"  to="/raspicam_node/image" />
 		<remap from="camera_info"   to="/raspicam_node/camera_info" />
-	</node>
-
-
-  <!--Another ar track alvar package for the fake laser scan-->
-  <node pkg="ar_track_alvar" type="individualMarkersNoKinect" name="ar_track_alvar_fake_scan" respawn="false" output="screen">
-		<param name="marker_size"           type="double" value="4.5" />
-		<param name="max_new_marker_error"  type="double" value="0.08" />
-		<param name="max_track_error"       type="double" value="0.2" />
-		<param name="output_frame"          type="string" value="base_scan" />
-		<remap from="camera_image"  to="/raspicam_node/image" />
-		<remap from="camera_info"   to="/raspicam_node/camera_info" />
-    <remap from="ar_pose_marker"  to="/box_local" />
 	</node>
 
   <!--path planning and localization after exploring-->
