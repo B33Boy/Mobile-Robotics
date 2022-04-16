@@ -130,7 +130,7 @@ def return_home():
 				flag = False
 
 		#Checks if goal has been reached. If it has, then lift package retrieval system
-		if (status_goal==3 and collectionFlag==True and flag==False and explorationFlag==True):
+		if (status_goal==3 and collectionFlag==True and flag==False and explorationFlag==True and counterFlag==True):
 			collectionFlag  = False
 			flag = True
 			pubServo.publish(-0.2) #where servo angle is mapped from -1 to 1
@@ -154,7 +154,7 @@ def return_home():
 				flag = False
 				
 		# If home goal has been reached, lower package retrieval system
-		if (status_goal==3 and collectionFlag==False and flag==False and explorationFlag==True):
+		if (status_goal==3 and collectionFlag==False and flag==False and explorationFlag==True and counterFlag==True):
 			pubServo.publish(0.2)
 				
 		rate.sleep()
