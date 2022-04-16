@@ -4,7 +4,6 @@ from std_msgs.msg import String, Int32
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from visualization_msgs.msg import Marker
 
-# Flag used to ensure home goal is only sent once
 packageOneFlag = False
 packageTwoFlag = False
 Q = [0,0,0,0]

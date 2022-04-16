@@ -54,7 +54,7 @@ def callback(data):
 	"""
 	global box1, time1, box2, time2
 
-	# compute the positions of the boxes with respect to the world coordinate system
+	# compute the positions of the boxes with respect to the base_scan coordinate system
 	# Marker id 0 and 1 is associated with first box, marker id 2 and 3 is associated with the second box
 	if (data.markers[0].id==0 or data.markers[0].id==1):
 		box1[0]=math.atan2(data.markers[0].pose.pose.position.y,data.markers[0].pose.pose.position.x)
