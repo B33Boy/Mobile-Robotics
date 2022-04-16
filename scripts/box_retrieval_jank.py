@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from geometry_msgs.msg import PoseStamped
-from actionlib_msgs.msg import GoalID
 from std_msgs.msg import Float32, Int32
-import actionlib
-import actionlib_msgs
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from actionlib_msgs.msg import GoalStatusArray
 from time import sleep
@@ -21,7 +17,7 @@ boxInfo = [5,5,5,5]
 
 def counterback(data):
 	"""
-	Sets counterFlag to True when 2 boxes have been detected
+	Sets counterFlag to True when 1 box has been detected
 
     Input
     :param data: message on box_counter 
@@ -64,8 +60,8 @@ def status_callback(data):
 
 def return_home():
 	"""
-    Function to create ROS node that sends the robot origin as a goal.
-	This happens when mapping and box exploration are complete
+    Function to create ROS node that retrieves a package and then sends the robot to start pose.
+	This happens when a package is detected
 
     Output
     :return: returns nothing
@@ -73,26 +69,25 @@ def return_home():
     # Initialize ros node
 	rospy.init_node('box_retrieval', anonymous=True)
     
-	# Create a subscriber to move_base/cancel topic and box_counter topic
+	# Create a subscriber to box_counter, ar_pose_marker and move_base/status topics
 	rospy.Subscriber('box_counter', Int32, counterback)
 	rospy.Subscriber('ar_pose_marker', AlvarMarkers, callback)
+	rospy.Subscriber('move_base/status', GoalStatusArray, status_callback)
     
-	# Initialize ROS publisher to move_base_simple/goal
+	# Initialize ROS publisher to servo_angle and move_base_simple/goal topics
 	pubServo = rospy.Publisher('servo_angle', Float32, queue_size=20)
 	pub = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=20)
-	rospy.Subscriber('move_base/status', GoalStatusArray, status_callback)
     
 	# Set node publish rate
 	rate = rospy.Rate(20)
     
 	# Loop to keep the nodes going
 	while not rospy.is_shutdown():
-
-
 		global flag, counterFlag, counter, collectionFlag
-	# Check is mapping and box exploration are complete
+
+		# Check if box has been detected and needs to be retrieved
 		if (counterFlag==True and collectionFlag==True and flag==True):
-		# If everything is complete, let user know and then publish home goal)
+			# Publish box pose as goal
 			goal = PoseStamped()
 			goal.header.stamp=rospy.get_rostime()
 			goal.header.frame_id='map'
@@ -102,17 +97,20 @@ def return_home():
 			rospy.loginfo(goal)
 			pub.publish(goal)
 			
-			# Counter to publish goal 100 times to ensure it overrides the path planning algorithm
+			# Counter to publish goal 20 times to ensure it overrides the path planning algorithm
 			counter+=1
 			if(counter>=20):
 				flag = False
+		# If at box pose, lift package retrieval system
 		if (status_goal==3 and collectionFlag==True and flag==False):
 			collectionFlag  = False
 			flag = True
 			pubServo.publish(-0.2)
 			counter = 0
 		
+		# Check if box has been retrieved
 		if (counterFlag==True and collectionFlag==False and flag==True):
+			# If so, go to start pose with package
 			goal = PoseStamped()
 			goal.header.stamp=rospy.get_rostime()
 			goal.header.frame_id='map'
@@ -123,10 +121,11 @@ def return_home():
 			rospy.loginfo(goal)
 			pub.publish(goal)
 			
-			# Counter to publish goal 100 times to ensure it overrides the path planning algorithm
+			# Counter to publish goal 20 times to ensure it overrides the path planning algorithm
 			counter+=1
 			if(counter>=20):
 				flag = False
+		# If at start pose, lower package retrieval system
 		if (status_goal==3 and collectionFlag==False and flag==False):
 			pubServo.publish(0.2)
 				

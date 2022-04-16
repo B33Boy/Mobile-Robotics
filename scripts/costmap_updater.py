@@ -5,6 +5,7 @@ from visualization_msgs.msg import Marker
 from ar_track_alvar_msgs.msg import AlvarMarkers
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Int32
+from actionlib_msgs.msg import GoalID
 
 # Initialize boxes and time variables for creating fake laserscans
 # Note: the boxes are initialized at non-zero values in order to appear outside the map such that costmap cannot prematurely process the boxes
@@ -13,10 +14,26 @@ time1=[0.0,0.0]
 box2=[0,19,6]
 time2=[0.0,0.0]
 counterFlag = True
+explorationFlag = True
+
+def mappingCallback(data):
+	"""
+	Sets explorationFlag to False when exploration is terminated
+
+    Input
+    :param data: message on move_base/cancel 
+ 
+    Output
+    :return: returns nothing
+    """
+
+	if (data.id==''):
+		global explorationFlag
+		explorationFlag = False	
 
 def counterback(data):
 	"""
-	Sets counterFlag to True when 2 boxes have been detected
+	Sets counterFlag to False when 2 boxes have been detected
 
     Input
     :param data: message on box_counter 
@@ -33,7 +50,7 @@ def callback(data):
 	""" Callback function that processes AlvarMarkers messages to compute box dimensions
 
 	Args:
-		data (AlvarMarker): Message of AlvarMarker  
+	data (AlvarMarker): Message of AlvarMarker  
 	"""
 	global box1, time1, box2, time2
 
@@ -50,22 +67,36 @@ def callback(data):
 
 # Function to update costmap regularly 
 def costmap_updater():
+	"""
+    Function to create ROS node that publishes fake laser scans of the packages.
+	This happens until mapping and box exploration are complete
+
+    Output
+    :return: returns nothing
+    """
 
     # Initialize a node to update costmap
 	rospy.init_node('costmap_updater', anonymous=True)
 	
-	# Initialize subscriber to box_local_marker topic
-	rospy.Subscriber('box_local', AlvarMarkers, callback)
+	# Initialize subscriber to move_base/cancel (mapping), box_counter, and box_local (ar_track) topics
+	rospy.Subscriber('move_base/cancel', GoalID, mappingCallback)
 	rospy.Subscriber('box_counter', Int32, counterback)
-    # Initialize publisher to scan_1 topic
+	rospy.Subscriber('box_local', AlvarMarkers, callback)
+
+    # Initialize publisher to scan_1 and scan_2 topics
 	pub1 = rospy.Publisher('scan_1', LaserScan, queue_size = 10)
 	pub2 = rospy.Publisher('scan_2', LaserScan, queue_size = 10)
 	
+	# Set node rate
 	rate = rospy.Rate(1)
     
 	while not rospy.is_shutdown():
-		global box1, time1, box2, time2
-		if (counterFlag):
+		global box1, time1, box2, time2, counterFlag
+
+		# Only publish scans during exploration (until two boxes have been found and mapping complete)
+		# Stopping the scan publishers allows them to be cleared from costmap
+		# This allows the robot to retrieve the package
+		if (counterFlag or explorationFlag):
 			# Create a LaserScan message and publish to box1_scan topic
 			box1_scan=LaserScan()
 			box1_scan.header.stamp=rospy.get_rostime()

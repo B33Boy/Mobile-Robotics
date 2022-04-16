@@ -8,7 +8,7 @@
       <arg name="move_forward_only" value="false"/>
     </include>
 
-    <!--start custom nodes to return home, make the markers, and update the costmap-->
+    <!--start custom nodes to retrieve a package and make markers-->
     <node pkg="mr" type="box_retrieval_jank.py" name="box_retrieval" output="screen">
     </node>
     <node pkg="mr" type="box_centre_calcs_large_markers.py" name="box_centre_calcs" output="screen">

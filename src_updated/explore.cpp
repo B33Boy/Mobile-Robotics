@@ -196,6 +196,7 @@ void Explore::makePlan()
   }
 
 	//New Stuff -----------------------------------------------------------------
+  // If a box has been detected, stop exploration
 	if (counterFlag) {
 		stop();
 		return;
@@ -303,6 +304,7 @@ void Explore::stop()
 
 }  // namespace explore
 
+// If a box has been detected, set flag to True
 void callbacker(const std_msgs::Int32 numBoxesDetected){  
 	if (numBoxesDetected.data >= 1){
     counterFlag = true;
@@ -316,6 +318,7 @@ int main(int argc, char** argv)
                                      ros::console::levels::Debug)) {
     ros::console::notifyLoggerLevelsChanged();
   }
+  // Setup node handle and subscriber to number of boxes detected
 	ros::NodeHandle nh_;
 	ros::Subscriber subber = nh_.subscribe("box_counter", 1000, callbacker);
   explore::Explore explore;

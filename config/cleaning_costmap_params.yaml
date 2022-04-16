@@ -7,7 +7,7 @@ cleaning_costmap:
    rolling_window: false
    resolution: 0.05
    transform_tolerance: 1
-   inflation_radius: 0.25
+   inflation_radius: 0.25 #tune this with size_of_cell
    map_type: costmap
 
 #Setup distance between cleaning lines

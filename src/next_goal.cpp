@@ -1,4 +1,3 @@
-
 /*This code is used to plan the trajectory of the robot  
 */
 
@@ -107,7 +106,8 @@ void pose_callback(const nav_msgs::Odometry &poses)
   pub_passed_path.publish(passed_path);
 }
 
-
+// callback function to check number of boxes detected.
+// Sets flag to false if 2 boxes are found
 void counterback(const std_msgs::Int32 numBoxesDetected){  
 	if (numBoxesDetected.data >= 2){
     counterFlag = false;
@@ -146,7 +146,6 @@ int main(int argc, char *argv[])
   ros::NodeHandle next_goal;
   ros::Subscriber sub1 = next_goal.subscribe("/odom", 1000, pose_callback);
   ros::Subscriber sub2 = next_goal.subscribe("/path_planning_node/cleaning_plan_nodehandle/cleaning_path", 1000, path_callback);
-
 	ros::Subscriber subBox = next_goal.subscribe("box_counter", 10, counterback);
 
   ros::Publisher pub1 = next_goal.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 1000);
@@ -166,6 +165,7 @@ int main(int argc, char *argv[])
   }
   ROS_INFO("tolerance_goal=%f", normeNextGoal);
 
+  // Only runs the node while <2 boxes are found
   while (ros::ok() and counterFlag)
   {
     ros::spinOnce();
